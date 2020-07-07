@@ -104,5 +104,24 @@ router.delete("/:id", (req,res) => {
             res.status(500).json({error: "The post could not be removed"})
         })
 })
+
+
 //when the client makes a PUT request to /api/posts/:id
+router.put("/:id", (req, res) => {
+    const changes = req.body;
+
+    Posts.update(req.params.id, changes)
+        .then(post => {
+            if(post){
+                res.status(200).json(post)
+            } else {
+                res.status(404).json({message: "The post could not be found"})
+            }
+        })
+        .catch(err => {
+            console.log(err)
+            res.status(500).json({message:"Error updating the post"})
+        })
+})
+
 module.exports = router
