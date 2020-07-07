@@ -13,7 +13,7 @@ router.post("/", (req, res) => {
     } else {
         Posts.insert(newPost)
             .then(post => {
-                res.status(201).json("Created")
+                res.status(201).json(post)
             })
             .catch(err => {
                 res.status(500).json("There was an error while saving tht post to the database")
@@ -22,24 +22,44 @@ router.post("/", (req, res) => {
 })
 
 //client makes a POST request to /api/posts/:id/comments
+// router.post("/:id/comments", (req, res) => {
+//     const newComment = req.body;
+//     const { id } = req.params.id
+
+//     Posts.insertComment({...newComment, post_id: id })
+//         .then(post => {
+//             if(!post){
+//                 res.status(404).json({message: "The post with the specified ID does not exist."})
+//             } else if (!newComment.text){
+//                 res.status(400).json({errorMessage: "Please provide text for the comment"})
+//             } else {
+//                 res.status(201).json("Created")
+//             }
+//         })
+//         .catch(err => {
+//             console.log(err)
+//             res.status(500).json({error: "There was an error while saving the comment to the database"})
+//         })
+    
+// })
+
 router.post("/:id/comments", (req, res) => {
     const newComment = req.body;
+    const { id } = req.params;
 
-    Posts.findById(req.params.id)
-        .then(post => {
-            if(!post){
-                res.status(404).json({message: "The post with the specified ID does not exist."})
-            } else if (!newComment.text){
-                res.status(400).json({errorMessage: "Please provide text for the comment"})
-            } else {
-                res.status(201).json("Created")
-            }
+    if(!newComment.text){
+        res.status(400).json({errorMessage: "Please provide text for the comment"})
+    }
+
+    Posts.insertComment({...newComment, post_id: id})
+        .then(cmt => {
+            console.log(cmt)
+            res.status(201).json(cmt)
         })
         .catch(err => {
             console.log(err)
-            res.status(500).json({error: "There was an error while saving the comment to the database"})
+            res.status(500).json({error: "There was an error while saving the comment to the database."})
         })
-    
 })
 
 //when the client makes a GET request to /api/posts
@@ -74,7 +94,7 @@ router.get("/:id", (req, res) => {
 
 //when the client makes a GET request to /api/posts/:id/comments
 router.get("/:id/comments", (req, res) => {
-    
+    Posts.findPostComments(req.params.id)
 })
 //when the client makes a DELETE request to /api/posts/:id
 //when the client makes a PUT request to /api/posts/:id
