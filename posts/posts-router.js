@@ -22,26 +22,6 @@ router.post("/", (req, res) => {
 })
 
 //client makes a POST request to /api/posts/:id/comments
-// router.post("/:id/comments", (req, res) => {
-//     const newComment = req.body;
-//     const { id } = req.params.id
-
-//     Posts.insertComment({...newComment, post_id: id })
-//         .then(post => {
-//             if(!post){
-//                 res.status(404).json({message: "The post with the specified ID does not exist."})
-//             } else if (!newComment.text){
-//                 res.status(400).json({errorMessage: "Please provide text for the comment"})
-//             } else {
-//                 res.status(201).json("Created")
-//             }
-//         })
-//         .catch(err => {
-//             console.log(err)
-//             res.status(500).json({error: "There was an error while saving the comment to the database"})
-//         })
-    
-// })
 
 router.post("/:id/comments", (req, res) => {
     const newComment = req.body;
@@ -94,8 +74,35 @@ router.get("/:id", (req, res) => {
 
 //when the client makes a GET request to /api/posts/:id/comments
 router.get("/:id/comments", (req, res) => {
+    if(!req.params.id){
+        res.status(404).json({message: "The post with the spcified ID does not exist."})
+    }
+
     Posts.findPostComments(req.params.id)
+        .then(cmts => {
+            res.status(200).json(cmts)
+        })
+        .catch(err => {
+            console.log(err)
+            res.status(500).json({error: "The comments information could not be retrieved."})
+        })
 })
+
+
 //when the client makes a DELETE request to /api/posts/:id
+router.delete("/:id", (req,res) => {
+    Posts.remove(req.params.id)
+        .then(post => {
+            if(post > 0){
+                res.status(200).json({message: "The message has been deleted"})
+            } else {
+                res.status(404).json({message: "The post with the specified ID does not exist."})
+            }
+        })
+        .catch(err => {
+            console.log(err)
+            res.status(500).json({error: "The post could not be removed"})
+        })
+})
 //when the client makes a PUT request to /api/posts/:id
 module.exports = router
